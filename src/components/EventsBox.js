@@ -44,8 +44,8 @@ export default function EventsBox(props) {
   };
 
   useEffect(() => {
-    console.log(user)
     if (user && user.eventsId) {
+      console.log('user.eventsId', [user.eventsId, user.phone, user.firstname])
       const eventSource = new EventSource(`${BaseURL}/api/events/realtime/${user.eventsId}`);
       eventSource.onmessage = ({ data }) =>  {
         updateEvents(data);

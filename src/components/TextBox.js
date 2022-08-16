@@ -109,13 +109,13 @@ export default function TextBox(props) {
   }
 
   useEffect(() => {
-    console.log(user)
-   if (languages) {
-    let l = languages.find(i => i.code === language);
-    setStyles(l.styles);
-    setStyle(l.styles[0].name);
-    setPremium(l.styles[0].premium === 'true' ? true : false);
-   }
+    //console.log(user)
+    if (languages) {
+      let l = languages.find(i => i.code === language);
+      setStyles(l.styles);
+      setStyle(l.styles[0].name);
+      setPremium(l.styles[0].premium === 'true' ? true : false);
+    }
   }, []);
 
   useEffect(() => {

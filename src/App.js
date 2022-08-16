@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {Buffer} from 'buffer';
 import {Stack, Box, Typography} from '@mui/material';
 import LoginBox from './components/LoginBox.js';
 import TextBox from './components/TextBox.js';
@@ -17,8 +18,30 @@ function App() {
   //   setUser(user)
   // };
   
+  const getQueryVariable = function (variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split( "=" );
+        if (pair[0] == variable) {
+            return pair[1];
+        }
+    }
+    return(false);
+  }
+
+  const parseVidsJwt = function (token) {
+    try {
+      return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    } catch (e) {console.error(e)}
+    return null;
+  }
+
   useEffect(() => {
     // get rid of the “Start” button and go straight into the demo
+    var vids = getQueryVariable('jwt');
+    vids = vids? vids: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjMzNiwicGFydG5lciI6MCwidXNlcm5hbWUiOiJ5aW5waW5nLmdlQHZvbmFnZS5jb20iLCJmaXJzdG5hbWUiOiJZaW5waW5nIiwibGFzdG5hbWUiOiJHZSIsInJvbGUiOiJiZXRhIiwicGhvbmUiOiIiLCJyZWdpb24iOiJVUyIsImxhbmd1YWdlIjoiZW4ifQ.7_i1044OzC6OI03iuNTA7zIuP1GSvmra3IQ22etiSYI'
+    var vidsData = parseVidsJwt(vids);
     if (!user) {
       fetch(`${BaseURL}/api/users/Alice`, { headers: {
           'Accept': 'application/json',
@@ -27,17 +50,7 @@ function App() {
       .then((res) => res.json())
       .then((user) => {
         console.log('jwt generated'); // user.username
-        setUser(Object.assign({eventsId: uuidv4()}, user, {
-            "userid": 336,
-            "partner": 0,
-            "username": "yinping.ge@vonage.com",
-            "firstname": "Yinping",
-            "lastname": "Ge",
-            "role": "beta",
-            "phone": "8615814034648",
-            "region": "US",
-            "language": "en"
-        }));
+        setUser(Object.assign({eventsId: uuidv4()}, user, vidsData));
       }).catch(console.error);
     }
   }, [])
