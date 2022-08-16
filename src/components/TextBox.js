@@ -86,6 +86,7 @@ export default function TextBox(props) {
     e.target.disabled = true;
     let s = styles.find(i => i.name == style);
     if (!s) return alert('Please select a valid style');
+    if (!phone || phone.length <= 0) return alert('Please enter a phone number');
     const customData = {
       text: text,
       language: language,
