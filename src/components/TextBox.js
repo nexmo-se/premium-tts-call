@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState, useEffect, useCallback } from "react";
-import {Stack, Button, TextField, Typography, MenuItem} from '@mui/material';
+import { useState, useEffect, useCallback, useRef } from "react";
+import {Stack, Box, Button, TextField, Typography, MenuItem, Alert, IconButton, Collapse} from '@mui/material';
 import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
 import languages from "../config/languages.js";
@@ -21,7 +21,7 @@ export default function TextBox(props) {
   const [rtcApp, setRtcApp] = useState(null);
   const [call, setCall] = useState(null);
   const [callStatus, setCallStatus] = useState('connecting');
-  
+
   const [phone, setPhone] = useState(user.phone? user.phone : '');
   const [lvn, setLvn] = useState('442382148031');
   const [text, setText] = useState(
@@ -33,11 +33,9 @@ export default function TextBox(props) {
     navigator.languages && navigator.languages.length
       ? navigator.languages[0]
       : navigator.language;
-
-  const [language, setLanguage] = useState(userLocale);
+  const [language, setLanguage] = useState(userLocale); // eg. "en-GB"
   const [styles, setStyles] = useState([]);
-  const [style, setStyle] = useState('');
-  const [premium, setPremium] = useState(false);
+  const [voiceName, setVoiceName] = useState(''); // eg. "en-GB-Wavenet-A", "Amy"
 
   const createSession = useCallback(() => {
     if (user) {
@@ -49,49 +47,18 @@ export default function TextBox(props) {
     }
   }, [user]);
 
-  const handleCall = (e) => {
-    let s = styles.find(i => i.name == style);
-    if (!s) return alert('Please select a valid style');
-    const customData = {
-      text: text,
-      language: language,
-      style: s.style,
-      premium: premium, 
-      record: true,
-      events_id: user.eventsId
-    }
-    console.log('=== customData', customData);
-    //return;
-    if (text.length <= 0 || !rtcApp) {
-      console.log('=== rtcApp')
-      return;
-    }
-    setCallStatus('calling');
-    rtcApp.callServer(lvn, "phone", customData).catch(console.error);
-  };
-  
-  const handleHangUp = (e) => {
-    setCallStatus('ending');
-    try {
-      call && call.hangUp().catch(console.error);
-    } catch(e) {
-      console.error(e);
-    } finally {
-      setCall(null);
-    };
-  };
-
   const createCall = (e) => {
     e.preventDefault();
+    let selected = styles.find(i => i.name == voiceName);
+    if (!selected || !phone || phone.length <= 0) {
+      return;
+    }
     e.target.disabled = true;
-    let s = styles.find(i => i.name == style);
-    if (!s) return alert('Please select a valid style');
-    if (!phone || phone.length <= 0) return alert('Please enter a phone number');
     const customData = {
       text: text,
       language: language,
-      style: s.style,
-      premium: premium, 
+      style: selected.style,
+      premium: selected.premium === 'true'? true : false, 
       record: true,
       events_id: user.eventsId,
       from: lvn,
@@ -109,13 +76,43 @@ export default function TextBox(props) {
       }).catch(console.error).finally(() => e.target.disabled = false );
   }
 
+  const handleCall = (e) => {
+    let selected = styles.find(i => i.name == voiceName);
+    if (!selected || text.length <= 0 || !rtcApp) {
+      return;
+    }
+    const customData = {
+      text: text,
+      language: language,
+      style: selected.style,
+      premium: selected.premium === 'true'? true : false, 
+      record: true,
+      events_id: user.eventsId
+    }
+    console.log('=== customData', customData);
+    setCallStatus('calling');
+    rtcApp.callServer(lvn, "phone", customData).catch(console.error);
+  };
+  
+  const handleHangUp = (e) => {
+    try {
+      setCallStatus('ending');
+      call && call.hangUp().catch(console.error);
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setCall(null);
+    };
+  };
+
   useEffect(() => {
-    //console.log(user)
     if (languages) {
-      let l = languages.find(i => i.code === language);
-      setStyles(l.styles);
-      setStyle(l.styles[0].name);
-      setPremium(l.styles[0].premium === 'true' ? true : false);
+      let lang = languages.find(i => i.code === language);
+      setStyles(lang.styles);
+      // select a voice name
+      let selected = lang.styles.find(i => i.premium === 'true');
+      selected = selected ? selected : lang.styles[0];
+      setVoiceName(selected.name);
     }
   }, []);
 
@@ -143,8 +140,8 @@ export default function TextBox(props) {
         alignItems="stretch"
         sx={{pb:2}}
         spacing={{ xs: 1, sm: 2, md: 4 }}
+        component="form"
     >
-
       {/* <TextField
         required
         disabled
@@ -154,12 +151,14 @@ export default function TextBox(props) {
         onChange={e => setLvn(e.target.value)}
       ></TextField> */}
       <TextField
-        id="number"
+        error={phone.length === 0 ? true : false}
+        id="phone"
         label="Your Phone Number"
         value={phone}
         onChange={e => setPhone(e.target.value)}
       ></TextField>
       <TextField
+        error={text.length === 0 ? true : false }
         id="text"
         label="TTS Message"
         multiline
@@ -174,10 +173,13 @@ export default function TextBox(props) {
         label="Language"
         value={language}
         onChange={e => {
-          let l = languages.find(i => i.code === e.target.value);
-          setLanguage(e.target.value);
-          setStyles(l.styles);
-          setStyle(l.styles[0].name);
+          let lang = languages.find(i => i.code === e.target.value);
+          setLanguage(lang.code);
+          setStyles(lang.styles);
+          // select a voice name
+          let selected = lang.styles.find(i => i.premium === 'true');
+          selected = selected ? selected : lang.styles[0];
+          setVoiceName(selected.name);
         }}
       >
         {languages.map((e, i) => (
@@ -191,11 +193,10 @@ export default function TextBox(props) {
         required
         id="style"
         label="Language Style"
-        value={style}
+        value={voiceName}
         onChange={e => {
-          let s = styles.find(i => i.name == e.target.value);
-          setStyle(s.name);
-          setPremium(s.premium === 'true' ? true : false)
+          let selected = styles.find(i => i.name == e.target.value);
+          setVoiceName(selected.name);
         }}
       >
         {styles.map((e, i) => (
@@ -204,7 +205,6 @@ export default function TextBox(props) {
           </MenuItem>
         ))}
       </TextField>
-
       <Stack 
         direction="column"
         justifyContent="center"

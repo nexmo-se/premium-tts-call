@@ -14,7 +14,7 @@ export default function EventsBox(props) {
 
   const updateEvents = (str) => {
     const data = JSON.parse(str);
-    console.log('updateEvents', data);
+    //console.log('updateEvents', data);
     if (data.type === 'answer') {
       setAnswers(prev => [data, ...prev])
     } 

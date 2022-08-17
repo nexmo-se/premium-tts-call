@@ -31,13 +31,13 @@ export default function LoginBox(props) {
 
   return (<>
     <Stack 
-        component="form"
         direction="column"
         justifyContent="center"
         alignItems="stretch"
         spacing={{ xs: 1, sm: 2, md: 4 }}
-        noValidate
+        component="form"
         autoComplete="off"
+        noValidate
         onSubmit={handleSubmit}
     >
       {/* <TextField
