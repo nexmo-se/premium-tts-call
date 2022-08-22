@@ -27,6 +27,8 @@ export default function EventsBox(props) {
           ...prev.filter(e => e.recording_uuid !== data.recording_uuid)
         ];
       });
+      data.info = '(Recording Available)'
+      setEvents(prev => [data, ...prev]);
     }
     else if (data.type === 'transcription') {
       //console.log('updateEvents', data.transcript)
@@ -38,6 +40,7 @@ export default function EventsBox(props) {
           ...prev.filter(e => e.recording_uuid !== data.recording_uuid)
         ];
       })
+      setEvents(prev => [data, ...prev]);
     } else {
       setEvents(prev => [data, ...prev]);
     }
@@ -107,6 +110,7 @@ export default function EventsBox(props) {
             id: 'timestamp', label: 'TIME', minWidth: 100,
             format: (value) => value && (new Date(value)).toISOString(),
           },
+          { id: 'info', label: '', minWidth: 100 },
           //', label: 'TO',  minWidth: 100}
         ]} 
       />

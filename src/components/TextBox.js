@@ -5,7 +5,9 @@ import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
 import languages from "../config/languages.js";
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : 'http://localhost:3002';
+const BaseURL = process.env.PUBLIC_URL;
+const LVN     = process.env.REACT_APP_LVN;
+console.log('LVN', LVN)
 
 // NexmoClient
 const NXM = new NexmoClient({ 
@@ -23,7 +25,7 @@ export default function TextBox(props) {
   const [callStatus, setCallStatus] = useState('connecting');
 
   const [phone, setPhone] = useState(user.phone? user.phone : '');
-  const [lvn, setLvn] = useState('442382148031');
+  const [lvn, setLvn] = useState(LVN);
   const [text, setText] = useState(
     'The Vonage Voice API is the easiest way to build high-quality voice applications in the Cloud. '
     + 'With the Voice API, you can send text-to-speech messages in 40 languages with different genders and accents. '
