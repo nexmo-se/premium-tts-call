@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState, useEffect, useCallback, useRef } from "react";
-import {Stack, Box, Button, TextField, Typography, MenuItem, Alert, IconButton, Collapse} from '@mui/material';
+import { useState, useEffect, useCallback } from "react";
+import {Stack, Button, TextField, Typography, MenuItem } from '@mui/material';
 import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
 import languages from "../config/languages.js";
@@ -47,7 +47,7 @@ export default function TextBox(props) {
 
   const createCall = (e) => {
     e.preventDefault();
-    let selected = styles.find(i => i.name == voiceName);
+    let selected = styles.find(i => i.name === voiceName);
     if (!selected || !phone || phone.length <= 0) {
       return;
     }
@@ -75,7 +75,7 @@ export default function TextBox(props) {
   }
 
   const handleCall = (e) => {
-    let selected = styles.find(i => i.name == voiceName);
+    let selected = styles.find(i => i.name === voiceName);
     if (!selected || text.length <= 0 || !rtcApp) {
       return;
     }
@@ -215,7 +215,7 @@ export default function TextBox(props) {
         label="Language Style"
         value={voiceName}
         onChange={e => {
-          let selected = styles.find(i => i.name == e.target.value);
+          let selected = styles.find(i => i.name === e.target.value);
           setVoiceName(selected.name);
         }}
       >

@@ -60,7 +60,7 @@ export default function EventsBox(props) {
         eventSource.close();
       };
     }
-  }, []);
+  }, [ user ]);
 
   return (<>
     <Stack 

@@ -40,8 +40,10 @@ class NexmoApi {
   static async createCall(param) {
     return new Promise((resolve, reject) => {
       NexmoApi.nexmo.calls.create(param, (err, result) => {
-        console.log(err || result);
-        if (err) reject(err)
+        if (err) {
+          console.log(err);
+          reject(err)
+        } 
         else resolve(result)
       });
     });
@@ -50,8 +52,10 @@ class NexmoApi {
   static async download(url, filename) {
     return new Promise((resolve, reject) => {
       NexmoApi.nexmo.files.save(url, filename, (err, result) => {
-        console.log(err || result);
-        if (err) reject(err)
+        if (err) {
+          console.log(err);
+          reject(err)
+        }
         else resolve(result)
       });
     });
@@ -69,7 +73,6 @@ class NexmoApi {
         }
       };
       let { data } = await axios(config);
-      //console.log(typeof data, data);
       if (!data.channels || !data.channels[0] || !data.channels[0].transcript) {
         return null;
       }
@@ -92,7 +95,6 @@ class NexmoApi {
         }
       };
       let { data } = await axios(config);
-      console.log(data)
       return data
     } catch (e) {
       console.log(e.message);
@@ -115,7 +117,6 @@ class NexmoApi {
         })
       };
       let { data } = await axios(config);
-      console.log(data)
       return data;
     } catch (e) {
       console.log(e.message, e.response?.data);
@@ -135,7 +136,6 @@ class NexmoApi {
         }
       };
       let { data } = await axios(config);
-      console.log(data)
       return data;
     } catch (e) {
       console.log(e.message, e.response?.data);

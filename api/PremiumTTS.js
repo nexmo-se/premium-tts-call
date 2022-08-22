@@ -7,7 +7,7 @@ const handleIndex = async function(req, res, next) {
 };
 
 const buildNcco = function(payload, AppUrl) {
-  console.log('build ncco', payload);
+  //console.log('build... ncco', payload);
   var ncco = [{
     action: 'talk',
     text: payload.text,
@@ -18,9 +18,7 @@ const buildNcco = function(payload, AppUrl) {
   if (payload.record) {
     var _ncco = {
       action: 'record',
-      eventUrl: [
-        `${AppUrl}/api/webhooks/event`
-      ],
+      eventUrl: [ `${AppUrl}/api/webhooks/event`],
       format: 'wav',
       beepStart: true
     };
@@ -34,14 +32,15 @@ const buildNcco = function(payload, AppUrl) {
 
 const createCall = async function(req, res, next) {
   try {
+    const AppUrl = req.app.get('AppUrl');
     const payload = req.body;
-    const ncco = buildNcco(payload, req.app.get('AppUrl'));
+    const ncco = buildNcco(payload, AppUrl);
     const param = {
       to: [{ type: 'phone', number: payload.to}],
       from: { type: 'phone', number: payload.from},
-      ncco: ncco
+      ncco: ncco,
+      event_url: [`${AppUrl}/api/webhooks/event`]
     };
-    //console.log(param.to, param.from)
     var data = await NexmoApi.createCall(param);
     if (data && data.conversation_uuid) {
       req.app.set(data.conversation_uuid, payload.events_id);
@@ -55,20 +54,23 @@ const createCall = async function(req, res, next) {
 };
 
 const handleCall = async function(req, res, next) {
-  console.log(req.body, req.params, req.query);
+  //console.log(req.body, req.params, req.query);
   const customData = req.body.custom_data? JSON.parse(req.body.custom_data) : {};
   const payload = Object.assign({}, customData, req.body);
   const ncco = buildNcco(payload, req.app.get('AppUrl'));
   if (payload.conversation_uuid) {
     req.app.set(payload.conversation_uuid, payload.events_id);
-    var event = { type: 'answer', ncco: ncco, conversation_uuid: payload.conversation_uuid};
-    req.app.emit(`vapi-webhooks-${payload.events_id}`, event);
+    req.app.emit(`vapi-webhooks-${payload.events_id}`, { 
+      type: 'answer', 
+      ncco: ncco, 
+      conversation_uuid: payload.conversation_uuid
+    });
   }
   res.json(ncco);
 }
 
 const handleEvent = async function(req, res, next) {
-  console.log(req.body, req.params, req.query, "\n\n");
+  //console.log('events', JSON.stringify(req.body));
   const payload = req.body;
   if (!payload.conversation_uuid) {
     return res.json(['ok!']);
@@ -102,9 +104,9 @@ const handleEvent = async function(req, res, next) {
     }
   }
   else {
-    req.app.emit(`vapi-webhooks-${events_id}`, {...payload, ...{type: 'event'}});
+    req.app.emit(`vapi-webhooks-${events_id}`, {...payload, type: 'event'});
   }
-  res.json(['ok!']);
+  return res.json(['ok! ' + Date.now()]);
 }
 
 const handleSse = async function(req, res, next) {
