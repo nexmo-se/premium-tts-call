@@ -28,12 +28,8 @@ export default function TextBox(props) {
     'The Vonage Voice API is the easiest way to build high-quality voice applications in the Cloud. '
     + 'With the Voice API, you can send text-to-speech messages in 40 languages with different genders and accents. '
     + 'Don\'t forget to try out the premium versions.');
-  
-  const userLocale = 
-    navigator.languages && navigator.languages.length
-      ? navigator.languages[0]
-      : navigator.language;
-  const [language, setLanguage] = useState(userLocale); // eg. "en-GB"
+
+  const [language, setLanguage] = useState(''); // eg. "en-GB"
   const [styles, setStyles] = useState([]);
   const [voiceName, setVoiceName] = useState(''); // eg. "en-GB-Wavenet-A", "Amy"
 
@@ -105,13 +101,35 @@ export default function TextBox(props) {
     };
   };
 
+  const findLang = (code) => {
+    var langCode = code? code : null;
+    // default
+    if (!langCode) {
+      var locale = 
+        navigator.languages && navigator.languages.length
+          ? navigator.languages.find(e => e.indexOf('-') >= 0)
+          : null;
+      locale = locale? locale : navigator.language;
+      console.log('default language', locale);
+      langCode = locale && locale.indexOf('-') >= 0? locale : null;
+    }
+    //
+    var language = languages.find(i => i.code === langCode);
+    if (!language) {
+      langCode = 'en-US'; 
+      language = languages.find(i => i.code === langCode); 
+    }
+    return language;
+  }
+
   useEffect(() => {
     if (languages) {
-      let lang = languages.find(i => i.code === language);
-      setStyles(lang.styles);
+      var lang = findLang();
       // select a voice name
       let selected = lang.styles.find(i => i.premium === 'true');
       selected = selected ? selected : lang.styles[0];
+      setLanguage(lang.code);
+      setStyles(lang.styles);
       setVoiceName(selected.name);
     }
   }, []);
