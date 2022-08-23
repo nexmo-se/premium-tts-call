@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 import {Stack, Button, TextField, Typography, MenuItem } from '@mui/material';
 import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
-import languages from "../config/languages.js";
+//import languages from "../config/languages.js";
 
-const BaseURL = process.env.PUBLIC_URL;
+const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
 const LVN     = process.env.REACT_APP_LVN;
 console.log('LVN', LVN)
 
@@ -31,6 +31,7 @@ export default function TextBox(props) {
     + 'With the Voice API, you can send text-to-speech messages in 40 languages with different genders and accents. '
     + 'Don\'t forget to try out the premium versions.');
 
+  const [languages, setLanguages] = useState([]);
   const [language, setLanguage] = useState(''); // eg. "en-GB"
   const [styles, setStyles] = useState([]);
   const [voiceName, setVoiceName] = useState(''); // eg. "en-GB-Wavenet-A", "Amy"
@@ -125,7 +126,19 @@ export default function TextBox(props) {
   }
 
   useEffect(() => {
-    if (languages) {
+    fetch(`${process.env.REACT_APP_TTS_VOICES_LIST}`, 
+    { headers: { "User-Agent": "Fetcher" } })
+    .then((res) => res.json())
+    .then((data) => {
+      //console.log(data)
+      let languages = data.filter(lang => lang.styles.find(style => style.premium === 'true'))
+      //console.log(languages)
+      setLanguages(languages)
+    }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (languages && languages.length) {
       var lang = findLang();
       // select a voice name
       let selected = lang.styles.find(i => i.premium === 'true');
@@ -134,7 +147,7 @@ export default function TextBox(props) {
       setStyles(lang.styles);
       setVoiceName(selected.name);
     }
-  }, []);
+  }, [languages]);
 
   useEffect(() => {
     createSession();
@@ -191,6 +204,7 @@ export default function TextBox(props) {
         required
         id="language"
         label="Language"
+        helperText="*only those that have a premium voice are available for the demo"
         value={language}
         onChange={e => {
           let lang = languages.find(i => i.code === e.target.value);

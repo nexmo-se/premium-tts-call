@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Stack, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : 'http://localhost:3002';
+const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
 
 export default function LoginBox(props) {
   const [username, setUsername] = useState('Alice');

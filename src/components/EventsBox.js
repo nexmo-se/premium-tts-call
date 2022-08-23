@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Stack, Typography, Box, Button } from '@mui/material';
 import EventsTable from './EventsTable.js';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : 'http://localhost:3002';
+const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
 
 export default function EventsBox(props) {
   const { user } = props;

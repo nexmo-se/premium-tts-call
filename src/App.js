@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import './App.css';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : 'http://localhost:3002';
+const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
 
 function App() {
   const [user, setUser] = useState(null);

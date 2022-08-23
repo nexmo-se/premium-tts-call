@@ -6,7 +6,7 @@ The demo supports making TTS calls with Voice API and Client SDK.
 
 In the project directory, you can run:
 
-### `npm run server:start`
+### `npm run server`
 Runs the app's server in the development mode.\
 
 
