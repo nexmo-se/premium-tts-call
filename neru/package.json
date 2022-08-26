@@ -1,0 +1,28 @@
+{
+  "name": "premium-tts",
+  "version": "1.0.1",
+  "type": "commonjs",
+  "module": "index.js",
+  "description": "",
+  "dependencies": {
+    "@vonage/server-sdk": "^2.11.2",
+    "axios": "^0.26.1",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0",
+    "neru-alpha": "^3.0.0",
+    "path": "^0.12.7"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "yinping.ge@vonage.com",
+  "license": "ISC",
+  "main": "server.js"
+}

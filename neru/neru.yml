@@ -1,0 +1,22 @@
+project:
+    name: neru-workshop-1
+instance:
+    name: dev
+    runtime: nodejs16
+    region: aws.use1
+    application-id: 4d34da43-8681-4b06-91e5-fc35471c7247
+    configurations:
+        test: ok
+    secrets:
+        - API_API_SECRET
+    capabilities:
+        - voice
+    entrypoint:
+        - node
+        - index.js
+debug:
+    name: training
+    entrypoint:
+        - nodemon
+        - --inspect
+        - index.js
