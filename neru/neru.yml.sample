@@ -1,10 +1,10 @@
 project:
-    name: neru-workshop-1
+    name: {your-neru-project-name}
 instance:
     name: dev
     runtime: nodejs16
     region: aws.use1
-    application-id: 4d34da43-8681-4b06-91e5-fc35471c7247
+    application-id: {your-application-id}
     configurations:
         test: ok
     secrets:
