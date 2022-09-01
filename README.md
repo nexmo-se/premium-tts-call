@@ -2,13 +2,21 @@
 
 The demo supports making TTS calls with Voice API and Client SDK.
 
+## Prerequisites
+1. create a Vonage account via the Dashboard.
+2. create your Vonage application
+    - enable voice capabilities
+    - set ANSWER URL: POST $APP_BASEURL/api/webhooks/answer 
+    - set EVENT URL: POST $APP_BASEURL/api/webhooks/event 
+3. buy a Vonage number
+
+
 ## Available Scripts
 
 In the project directory, you can run:
 
 ### `npm run server`
-Runs the app's server in the development mode.\
-
+Runs the app's server in the development mode.
 
 ### `npm start`
 Runs the app's frontend in the development mode.\
