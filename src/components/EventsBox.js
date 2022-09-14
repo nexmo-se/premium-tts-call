@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Stack, Typography, Box, Button } from '@mui/material';
 import EventsTable from './EventsTable.js';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
+const AppServerUrl = process.env.REACT_APP_SERVER || '';
 
 export default function EventsBox(props) {
   const { user } = props;
@@ -49,7 +49,7 @@ export default function EventsBox(props) {
   useEffect(() => {
     if (user && user.eventsId) {
       console.log('user.eventsId', [user.eventsId, user.phone, user.firstname])
-      const eventSource = new EventSource(`${BaseURL}/api/events/realtime/${user.eventsId}`);
+      const eventSource = new EventSource(`${AppServerUrl}/api/events/realtime/${user.eventsId}`);
       eventSource.onmessage = ({ data }) =>  {
         updateEvents(data);
       };
@@ -87,7 +87,7 @@ export default function EventsBox(props) {
           //{ id: 'recording_uuid', label: 'Recording UUID', minWidth: 100 },
           { id: 'filename', label: 'Recording', minWidth: 100, 
             format: (value) => <audio controls key={'audio-' + value} >
-              <source src={`${BaseURL}/${value}`} type="audio/wav"></source>
+              <source src={`${AppServerUrl}/${value}`} type="audio/wav"></source>
             </audio>
           },
           { id: 'transcript', label: 'Transcript (en-US only)', minWidth: 100},

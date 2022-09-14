@@ -27,12 +27,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "REACT_APP_SERVER=http://localhost:3002 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "node server.js",
-    "server:dev": "nodemon server.js --ignore 'build/*' --ignore 'src/*' --ignore 'public/*' "
+    "server": "node server.js"
   },
   "eslintConfig": {
     "extends": [

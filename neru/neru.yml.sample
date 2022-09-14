@@ -8,7 +8,7 @@ instance:
     configurations:
         test: ok
     secrets:
-        - API_API_SECRET
+        - API_SECRET
     capabilities:
         - voice
     entrypoint:

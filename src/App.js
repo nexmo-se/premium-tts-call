@@ -8,7 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import './App.css';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
+const AppServerUrl = process.env.REACT_APP_SERVER || '';
+console.log(AppServerUrl)
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,7 +44,7 @@ function App() {
     vids = vids? vids: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjMzNiwicGFydG5lciI6MCwidXNlcm5hbWUiOiJ5aW5waW5nLmdlQHZvbmFnZS5jb20iLCJmaXJzdG5hbWUiOiJZaW5waW5nIiwibGFzdG5hbWUiOiJHZSIsInJvbGUiOiJiZXRhIiwicGhvbmUiOiIiLCJyZWdpb24iOiJVUyIsImxhbmd1YWdlIjoiZW4ifQ.7_i1044OzC6OI03iuNTA7zIuP1GSvmra3IQ22etiSYI'
     var vidsData = parseVidsJwt(vids);
     if (!user) {
-      fetch(`${BaseURL}/api/users/Alice`, { headers: {
+      fetch(`${AppServerUrl}/api/users/Alice`, { headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       }})

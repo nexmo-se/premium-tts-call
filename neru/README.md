@@ -3,30 +3,30 @@
 Deploy the demo on NeRu.
 
 ## Prerequisites 
+- [NeRu CLI](https://vonage-neru.herokuapp.com/neru/guides/cli)
+- Configure Vonage application
+   - if you use an existing application, run `neru app configure --app-id [appid]` and run `neru app generate-keys` 
+   - Or create a new application, run `neru app create --name "your app name"`
+
+## Installation
 1. Copy `neru.yml.sample` to `neru.yml` and add {your-neru-project-name} and {your-application-id}
-2. Copy `debug.debug.sample` to `.env.debug` and add {your_API_API_SECRET}
-3. `neru secrets create --name API_API_SECRET --value {your_API_API_SECRET}`
-4. `npm install`
-5. Run `neru deploy` and take note of the `instance host address` for {your-neru-deploy-url}
-   Or run `source .env.debug && neru debug` and take note of `Application Host` for {your-neru-debug-url} 
-6. Build static files
-```
-cd ..
+2. Run `npm install`
 
-# for Neru Debug 
-PUBLIC_URL={your-neru-debug-url} npm run build && cp -R ./api ./build ./neru/
+## Build
+Pack static files:
+   ```sh
+   cd .. # go to your project's root directory
+   npm run build && cp -R ./api ./build ./neru/
+   cd ./neru # go back to .neru
+   ```
 
-# or for Neru Deploy
-PUBLIC_URL={your-neru-deploy-url} npm run build && cp -R ./api ./build ./neru/
+## Neru Deploy 
+1. Run `neru secrets create --name API_SECRET --value {your_API_SECRET}`
+2. Run `neru deploy`
+3. Open URL: **instance host address 2**
 
-```
 
-### Neru Debug 
-```
-source .env.debug && neru debug
-```
-
-### Neru Deploy
-```
-neru deploy
-```
+## Neru Debug 
+1. Copy `debug.debug.sample` to `.env.debug` and add {your_API_SECRET}
+2. Run `source .env.debug && neru debug`
+3. Open URL: **Application Host 2**

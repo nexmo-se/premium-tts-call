@@ -59,6 +59,6 @@ app.use(function (err, req, res, next) {
   res.status(500).json({"message": "Something is wrong", "error": err.message?? err});
 })
 
-var PORT = process.env.PORT || 3002;
+var PORT = process.env.APP_SERVER_PORT || 3002;
 app.listen(PORT, () => console.log(`listening on port ${PORT}!`));
 // #

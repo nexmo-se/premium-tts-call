@@ -3,13 +3,13 @@ import { useState, useEffect } from "react";
 import { Stack, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
+const AppServerUrl = process.env.REACT_APP_SERVER || '';
 
 export default function LoginBox(props) {
   const [username, setUsername] = useState('Alice');
   const handleSubmit = function(e) {
       e.preventDefault();
-      fetch(`${BaseURL}/api/users/${username}`, { headers: {
+      fetch(`${AppServerUrl}/api/users/${username}`, { headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }})
@@ -21,7 +21,7 @@ export default function LoginBox(props) {
   }
 
   useEffect(() => {
-    fetch(`${BaseURL}/api/users`, { headers: {
+    fetch(`${AppServerUrl}/api/users`, { headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
       }})

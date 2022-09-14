@@ -4,7 +4,7 @@ const path = require('path');
 const Nexmo = require('@vonage/server-sdk');
 
 const PRIVATE_KEY = process.env.NERU_APP_PORT? Buffer.from(process.env.PRIVATE_KEY, "utf-8") 
-  : path.join(__dirname, "/../../" + process.env.PRIVATE_KEY)
+  : path.join(__dirname, "/../../" + process.env.API_PRIVATE_KEY)
 const OPTIONS = {
   //debug: true, 
   restHost: "rest-us-1.nexmo.com", 
@@ -18,7 +18,7 @@ class NexmoApi {
       NexmoApi._nexmo = new Nexmo(
         {
           apiKey: process.env.API_ACCOUNT_ID,
-          apiSecret: process.env.API_API_SECRET,
+          apiSecret: process.env.API_SECRET,
           applicationId: process.env.API_APPLICATION_ID,
           privateKey: PRIVATE_KEY
         }, OPTIONS

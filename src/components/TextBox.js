@@ -5,8 +5,8 @@ import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
 //import languages from "../config/languages.js";
 
-const BaseURL = process.env.PUBLIC_URL? process.env.PUBLIC_URL : process.env.REACT_APP_APP_URL;
-const LVN     = process.env.REACT_APP_LVN;
+const AppServerUrl = process.env.REACT_APP_SERVER || '';
+const LVN          = process.env.REACT_APP_LVN;
 console.log('LVN', LVN)
 
 // NexmoClient
@@ -64,7 +64,7 @@ export default function TextBox(props) {
       to: phone
     }
     console.log('=== customData', customData);
-    fetch(`${BaseURL}/api/create-call`, { method: 'POST', headers: {
+    fetch(`${AppServerUrl}/api/create-call`, { method: 'POST', headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
