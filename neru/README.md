@@ -12,13 +12,9 @@ Deploy the demo on NeRu.
 1. Copy `neru.yml.sample` to `neru.yml` and add {your-neru-project-name} and {your-application-id}
 2. Run `npm install`
 
-## Build
-Pack static files:
-   ```sh
-   cd .. # go to your project's root directory
-   npm run build && cp -R ./api ./build ./neru/
-   cd ./neru # go back to .neru
-   ```
+## Build Frontend
+1. Remove REACT_APP_SERVER from `../frontend/.env`
+2. Run `npm run build`
 
 ## Neru Deploy 
 1. Run `neru secrets create --name API_SECRET --value {your_API_SECRET}`

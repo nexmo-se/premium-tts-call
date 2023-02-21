@@ -1,4 +1,5 @@
 
+//require('dotenv').config();
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -7,6 +8,8 @@ var cors = require('cors');
 var createHttpError = require('http-errors');
 var fs = require('fs');
 var { neru, Voice } = require("neru-alpha");
+
+var PORT = process.env.NERU_APP_PORT || 3002;
 
 var app = express();
 
@@ -17,11 +20,11 @@ var {
   handleEvent,
   handleSse,
   getUser,
-  getUsers
+  updateUsersCached
 } = require('./api/PremiumTTS');
 
 app.use(cors());
-app.use(logger('dev'));
+app.use(logger('tiny', { skip: (req) => ["/favicon.ico", "/_/health"].includes(req.path)}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -38,7 +41,6 @@ app.set('AppUrl', neru.getAppUrl());
 
 app.all('/api/create-call', createCall);
 app.all('/api/users/:username', getUser);
-app.all('/api/users', getUsers);
 app.all('/api/events/realtime/:eventsId', handleSse);
 app.all('/api/webhooks/answer', handleCall);
 app.all('/api/webhooks/event', handleEvent);
@@ -70,7 +72,7 @@ app.get('/_/health', async (req, res, next) => {
 });
 
 var dir = './build'
-if (!fs.existsSync(dir)) {
+if (!fs.existsSync(dir)){
   fs.mkdirSync(dir, { mask: 0o0766, recursive: true });
 }
 
@@ -84,4 +86,8 @@ app.use(function (err, req, res, next) {
   res.status(500).json({"message": "Something is wrong", "error": err.message?? err});
 })
 
-app.listen(process.env.NERU_APP_PORT, () => console.log(`listening on port ${process.env.NERU_APP_PORT}!`));
+app.listen(PORT, async () => {
+  console.log(`listening on port ${PORT}!`);
+  await updateUsersCached(null, true);
+});
+// #

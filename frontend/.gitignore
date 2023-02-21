@@ -8,4 +8,5 @@ node_modules
 
 vonage_app.json
 cli
+
 build/*

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const AppServerUrl = process.env.REACT_APP_SERVER || '';
 
 export default function LoginBox(props) {
-  const [username, setUsername] = useState('Alice');
+  const [username] = useState('Alice');
   const handleSubmit = function(e) {
       e.preventDefault();
       fetch(`${AppServerUrl}/api/users/${username}`, { headers: {
@@ -40,14 +40,6 @@ export default function LoginBox(props) {
         noValidate
         onSubmit={handleSubmit}
     >
-      {/* <TextField
-        disabled
-        required
-        id="username"
-        label="Your Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      /> */}
       
       <Button type="submit"
           variant="outlined"

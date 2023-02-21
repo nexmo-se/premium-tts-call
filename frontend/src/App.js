@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {Buffer} from 'buffer';
 import {Stack, Box, Typography} from '@mui/material';
-import LoginBox from './components/LoginBox.js';
+// import LoginBox from './components/LoginBox.js';
 import TextBox from './components/TextBox.js';
 import EventsBox from './components/EventsBox.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,7 +24,7 @@ function App() {
     var vars = query.split("&");
     for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split( "=" );
-        if (pair[0] == variable) {
+        if (pair[0] === variable) {
             return pair[1];
         }
     }
@@ -39,11 +39,10 @@ function App() {
   }
 
   useEffect(() => {
-    // get rid of the “Start” button and go straight into the demo
-    var vids = getQueryVariable('jwt');
-    vids = vids? vids: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjMzNiwicGFydG5lciI6MCwidXNlcm5hbWUiOiJ5aW5waW5nLmdlQHZvbmFnZS5jb20iLCJmaXJzdG5hbWUiOiJZaW5waW5nIiwibGFzdG5hbWUiOiJHZSIsInJvbGUiOiJiZXRhIiwicGhvbmUiOiIiLCJyZWdpb24iOiJVUyIsImxhbmd1YWdlIjoiZW4ifQ.7_i1044OzC6OI03iuNTA7zIuP1GSvmra3IQ22etiSYI'
+    var vids = process.env.REACT_APP_VIDS_JWT_SAMPLE || getQueryVariable('jwt') || '';
     var vidsData = parseVidsJwt(vids);
     if (!user) {
+      // TODO: fetch(`${AppServerUrl}/api/users/A${user.phone}`, { headers: {
       fetch(`${AppServerUrl}/api/users/Alice`, { headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -54,7 +53,7 @@ function App() {
         setUser(Object.assign({eventsId: uuidv4()}, user, vidsData));
       }).catch(console.error);
     }
-  }, [])
+  }, [user])
 
   if (!user) {
     return (<>

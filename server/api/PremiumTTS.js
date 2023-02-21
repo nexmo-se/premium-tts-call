@@ -22,9 +22,10 @@ const buildNcco = function(payload, AppUrl) {
       format: 'wav',
       beepStart: true
     };
-    if (payload.language == 'en-US') {
-      _ncco.transcription = { language: 'en-US' }
-    }
+    // if (payload.language == 'en-US') {
+    //   _ncco.transcription = { language: 'en-US' }
+    // }
+    _ncco.transcription = { language: payload.language }
     ncco.unshift(_ncco);
   }
   return ncco;
@@ -136,41 +137,28 @@ const handleSse = async function(req, res, next) {
 const getUser = async function(req, res, next) {
   var { username } = req.params;
   try {
-    var found = findUser(username);
+    var found = findUserCached(username);
     if (!found) {
       try {
         let created = await NexmoApi.createUser(username);
-        if (created) {
-          const users = await NexmoApi.findUsers();
-          storeUsers(users);
-        }
-        else throw 'failed to createUser';
+        updateUsersCached(created);
       }
-      catch (e) {
-        console.log(e.message);
-      }
+      catch(e) {}
     }
+
     const jwt = await NexmoApi.generateJwtAcl(username);
     if (!jwt) throw "failed to generate an JWT token";
+
     res.json({ username: username, jwt: jwt });
   } catch (e) {
     next(e)
   }
 }
 
-const getUsers = async function(req, res, next) {
+const findUserCached = function (username) {
   try {
-    const users = await NexmoApi.findUsers();
-    storeUsers(users);
-    res.json(['getUsers ok!']);
-  } catch (e) {
-    next(e)
-  }
-}
-
-const findUser = function (username) {
-  try {
-    var filename = path.join(__dirname, "users.log");
+    var filename = path.join(__dirname, "data", "users.json");
+    // console.log(filename);
     if (!fs.existsSync(filename)) return null;
     var str = fs.readFileSync(filename, 'utf8', 'w+');
     var data = JSON.parse(str);
@@ -179,11 +167,21 @@ const findUser = function (username) {
   } catch (e) {}
   return null;
 }
-const storeUsers = function (users) {
+
+const updateUsersCached = async function (newData = null, reset = false) {
   try {
-    var filename = path.join(__dirname, "users.log");
-    fs.existsSync(filename) && fs.unlinkSync(filename);
-    fs.writeFileSync(filename, JSON.stringify(users), 'utf8', 'w+');
+    var filename = path.join(__dirname, "data", "users.json");
+    //console.log(filename);
+    var data;
+    if (reset && !newData) {
+      fs.existsSync(filename) && fs.unlinkSync(filename);
+      data = await NexmoApi.listUsers();
+    } else {
+      var str = fs.readFileSync(filename, 'utf8', 'w+');
+      data = JSON.parse(str);
+      data.push(newData)
+    }
+    fs.writeFileSync(filename, JSON.stringify(data, null, 4), 'utf8', 'w+');
   } catch (e) {}
   return null;
 }
@@ -195,5 +193,5 @@ module.exports = {
   handleEvent,
   handleSse,
   getUser,
-  getUsers
+  updateUsersCached
 };

@@ -7,7 +7,7 @@ import CallButtons from './CallButtons.js'
 
 const AppServerUrl = process.env.REACT_APP_SERVER || '';
 const LVN          = process.env.REACT_APP_LVN;
-console.log('LVN', LVN)
+// console.log('LVN', LVN)
 
 // NexmoClient
 const NXM = new NexmoClient({ 
@@ -25,7 +25,7 @@ export default function TextBox(props) {
   const [callStatus, setCallStatus] = useState('connecting');
 
   const [phone, setPhone] = useState(user.phone? user.phone : '');
-  const [lvn, setLvn] = useState(LVN);
+  const [lvn] = useState(LVN);
   const [text, setText] = useState(
     'The Vonage Voice API is the easiest way to build high-quality voice applications in the Cloud. '
     + 'With the Voice API, you can send text-to-speech messages in 40 languages with different genders and accents. '
@@ -104,27 +104,6 @@ export default function TextBox(props) {
     };
   };
 
-  const findLang = (code) => {
-    var langCode = code? code : null;
-    // default
-    if (!langCode) {
-      var locale = 
-        navigator.languages && navigator.languages.length
-          ? navigator.languages.find(e => e.indexOf('-') >= 0)
-          : null;
-      locale = locale? locale : navigator.language;
-      console.log('default language', locale);
-      langCode = locale && locale.indexOf('-') >= 0? locale : null;
-    }
-    //
-    var language = languages.find(i => i.code === langCode);
-    if (!language) {
-      langCode = 'en-US'; 
-      language = languages.find(i => i.code === langCode); 
-    }
-    return language;
-  }
-
   useEffect(() => {
     fetch(`${process.env.REACT_APP_TTS_VOICES_LIST}`, 
     { headers: { "User-Agent": "Fetcher" } })
@@ -139,6 +118,26 @@ export default function TextBox(props) {
 
   useEffect(() => {
     if (languages && languages.length) {
+      const findLang = (code) => {
+        var langCode = code? code : null;
+        // default
+        if (!langCode) {
+          var locale = 
+            navigator.languages && navigator.languages.length
+              ? navigator.languages.find(e => e.indexOf('-') >= 0)
+              : null;
+          locale = locale? locale : navigator.language;
+          console.log('default language', locale);
+          langCode = locale && locale.indexOf('-') >= 0? locale : null;
+        }
+        //
+        var language = languages.find(i => i.code === langCode);
+        if (!language) {
+          langCode = 'en-US'; 
+          language = languages.find(i => i.code === langCode); 
+        }
+        return language;
+      }
       var lang = findLang();
       // select a voice name
       let selected = lang.styles.find(i => i.premium === 'true');
@@ -175,14 +174,7 @@ export default function TextBox(props) {
         spacing={{ xs: 1, sm: 2, md: 4 }}
         component="form"
     >
-      {/* <TextField
-        required
-        disabled
-        id="lvn"
-        label="Vonage Virtual Number"
-        value={lvn}
-        onChange={e => setLvn(e.target.value)}
-      ></TextField> */}
+
       <TextField
         error={phone.length === 0 ? true : false}
         id="phone"

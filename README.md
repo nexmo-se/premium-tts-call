@@ -11,19 +11,16 @@ The demo supports making TTS calls with Voice API and Client SDK.
 3. a Vonage number and link it to the Vonage application
 
 ## Installation
-1. Copy `env.sample` to `.env` and add your settings
-2. Run `npm install`
+1. Go to `./frontend` and `./server`, copy `env.sample` to `.env` and add your settings
+2. Run `npm install` in `./frontend` and `./server` separately  
 
 ## Available Scripts
-In the project directory, run:
 
-1. `npm run server`
-Runs the app's server in the development mode.
-Open [http://localhost:3002/api/](http://localhost:3002/api/) to see if it is running
+1. In the `./server` directory, run: `npm start`
+Open [server](http://localhost:3002/api/) to see if it is running
 
-2. `npm start`
-Runs the app's frontend in the development mode.
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+2. In the `./frontend` directory, run:  `npm start`
+Open [frontend](http://localhost:3000) to view it in your browser.
 
 
 ### NeRu

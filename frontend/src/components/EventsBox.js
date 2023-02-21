@@ -90,7 +90,7 @@ export default function EventsBox(props) {
               <source src={`${AppServerUrl}/${value}`} type="audio/wav"></source>
             </audio>
           },
-          { id: 'transcript', label: 'Transcript (en-US only)', minWidth: 100},
+          { id: 'transcript', label: 'Transcript', minWidth: 100},
         ]} 
       />
       </Box>

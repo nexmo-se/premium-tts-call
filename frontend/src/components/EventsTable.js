@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 
 export default function EventsBox(props) {
-  const { columns, rows, name } = props;
+  const { columns, rows } = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
