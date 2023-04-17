@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import {Stack, Button, TextField, Typography, MenuItem } from '@mui/material';
 import NexmoClient from 'nexmo-client';
 import CallButtons from './CallButtons.js'
-//import languages from "../config/languages.js";
+import languagesConfig from "../config/languages.js";
 
 const AppServerUrl = process.env.REACT_APP_SERVER || '';
 const LVN          = process.env.REACT_APP_LVN;
@@ -105,15 +105,17 @@ export default function TextBox(props) {
   };
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_TTS_VOICES_LIST}`, 
-    { headers: { "User-Agent": "Fetcher" } })
-    .then((res) => res.json())
-    .then((data) => {
-      //console.log(data)
-      let languages = data.filter(lang => lang.styles.find(style => style.premium === 'true'))
-      //console.log(languages)
-      setLanguages(languages)
-    }).catch(console.error);
+    let languages = languagesConfig.filter(lang => lang.styles.find(style => style.premium === 'true'));
+    setLanguages(languages);
+    // fetch(`${process.env.REACT_APP_TTS_VOICES_LIST}`, 
+    // { headers: { "User-Agent": "Fetcher" } })
+    // .then((res) => res.json())
+    // .then((data) => {
+    //   //console.log(data)
+    //   let languages = data.filter(lang => lang.styles.find(style => style.premium === 'true'))
+    //   // console.log(languages)
+    //   setLanguages(languages);
+    // }).catch(console.error);
   }, []);
 
   useEffect(() => {

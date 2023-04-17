@@ -915,20 +915,20 @@ export default [
         }
       ]
     },
-    {
-      "code" : "en-GB-SCT",
-      "language" : "English (Scotland)",
-      "styles" : [
-        {
-          "gender" : "Female",
-          "name" : "Fiona",
-          "premium" : "false",
-          "provider" : "Nuance",
-          "ssml" : "false",
-          "style" : 0
-        }
-      ]
-    },
+    // {
+    //   "code" : "en-GB-SCT",
+    //   "language" : "English (Scotland)",
+    //   "styles" : [
+    //     {
+    //       "gender" : "Female",
+    //       "name" : "Fiona",
+    //       "premium" : "false",
+    //       "provider" : "Nuance",
+    //       "ssml" : "false",
+    //       "style" : 0
+    //     }
+    //   ]
+    // },
     {
       "code" : "en-GB-WLS",
       "language" : "English (Wales)",
