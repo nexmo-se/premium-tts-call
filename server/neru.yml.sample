@@ -1,0 +1,25 @@
+project:
+    name: premium-tts
+instance:
+    name: dev
+    runtime: nodejs16
+    region: aws.use1
+    application-id: {{your-application-id}}
+    environment:
+        - name: APP_VONAGE_NUMBER
+          value: "44700000000"
+        - name: APP_VONAGE_REGION
+          value: "us"
+    secrets:
+    capabilities:
+        - voice
+    entrypoint:
+        - npm
+        - run
+        - prod
+debug:
+    name: 0
+    entrypoint:
+        - npm
+        - run
+        - debug

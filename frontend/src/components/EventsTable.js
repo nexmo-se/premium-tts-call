@@ -1,10 +1,15 @@
-import * as React from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 
-export default function EventsBox(props) {
-  const { columns, rows } = props;
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+import { useState } from "react";
+import { 
+  Paper, 
+  Table, TableBody, TableCell, TableContainer, TableHead, 
+  TablePagination, TableRow 
+} from "@mui/material";
+
+export default function EventsBox({ columns, rows }) {
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -16,7 +21,7 @@ export default function EventsBox(props) {
   };
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'auto' }}>
+    <Paper sx={{ width: "100%", overflow: "auto" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -41,8 +46,8 @@ export default function EventsBox(props) {
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (<TableCell key={column.id} align={column.align}>
-                          {column.format ? column.format(value) : value}
-                        </TableCell>);
+                        {column.format ? column.format(value) : value}
+                      </TableCell>);
                     })}
                   </TableRow>
                 );
