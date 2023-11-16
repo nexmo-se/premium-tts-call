@@ -91,7 +91,7 @@ const Router = (services) => {
       if (!username) throw new Error("empaty params username");
 
       // if (!users[username]) throw new Error("username not found");
-      username = "Alice"; // Alice or Bob
+      username = process.env.APP_USER || "Alice"; // Alice or Bob
 
       const jwt = await nexmo.generateJwtAcl(username);
       if (!jwt) throw new Error("failed to generate an JWT token");
