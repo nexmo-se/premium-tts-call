@@ -2,12 +2,12 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import { Stack, Button, TextField, Typography, MenuItem } from "@mui/material";
 import { UserContext } from "../context/UserContext";
-import languagesConfig from "../config/languages.js";
+import languages from "../config/index.js";
 import CallButtons from "./CallButtons.js";
 import NexmoClient from "nexmo-client";
 
-const APP_URL = process.env.REACT_APP_URL || "";
-const REGION = process.env.REACT_APP_VONAGE_REGION || "us-1";
+const APP_API_URL_CREATE_CALL = `${process.env.REACT_APP_URL || ""}/api/create-outbound-call`;
+const REGION = process.env.REACT_APP_VONAGE_REGION || "us-3";
 const PRICE_PER_UNIT = Number(process.env.REACT_APP_PRICE_PER_UNIT) || 0.0029;
 
 export default function TextBox() {
@@ -23,14 +23,11 @@ export default function TextBox() {
 
   const [estimatedCost, setEstimatedCost] = useState(0);
 
+  const [textErr, setTextErr] = useState(false);
   const [text, setText] = useState(
     "The Vonage Voice API is the easiest way to build high-quality voice applications in the Cloud. "
     + "With the Voice API, you can send text-to-speech messages in 40 languages with different genders and accents. "
     + "Do not forget to try out the premium versions.");
-
-  // only those languages that have a premium voice
-  const languagesFiltered = languagesConfig.filter(lang => lang.styles.find(style => style.premium === "true"));
-  const [languages, ] = useState(languagesFiltered);
 
   // styles: [..., {gender:, name:, premium:, ssml:, style:0}, ...]
   const [styles, setStyles] = useState([]); 
@@ -42,9 +39,9 @@ export default function TextBox() {
   const createSession = (jwt) => {
     rtc.current = new NexmoClient({ 
       // debug: true, 
-      nexmo_api_url: `https://api-${REGION}.nexmo.com`,
-      url: `wss://ws-${REGION}.nexmo.com`,
-      ips_url: `https://api-${REGION}.nexmo.com/v1/image`
+      nexmo_api_url: `https://api-${REGION}.vonage.com`,
+      url: `wss://ws-${REGION}.vonage.com`,
+      ips_url: `https://api-${REGION}.vonage.com/v1/image`
     });
 
     rtc.current.createSession(jwt).then(rtcApp => {
@@ -57,7 +54,7 @@ export default function TextBox() {
     });
   };
 
-  const createCall = (e) => {
+  const createOutboundCall = (e) => {
     e.preventDefault();
     if (!phone || phone.length < 4) {
       return;
@@ -71,13 +68,12 @@ export default function TextBox() {
         style: styleSelected.style,
         premium: styleSelected.premium === "true"? true : false, 
         record: true,
-        userid: user.userid,
-        from: user.lvn || "",
-        to: phone
+        userId: user.userId,
+        to: phone,
       };
       console.log("=== customData", customData);
       
-      fetch(`${APP_URL}/api/create-call`, {
+      fetch(APP_API_URL_CREATE_CALL, {
         method: "POST", 
         headers: {
           "Accept": "application/json",
@@ -85,7 +81,7 @@ export default function TextBox() {
         },
         body: JSON.stringify(customData)
       }).then((res) => res.json()).then((data) => {
-        console.log("/api/create-call", data);
+        console.log("fetched", APP_API_URL_CREATE_CALL, data);
       }).catch(console.error).finally(() => e.target.disabled = false );
 
     } catch (e) {
@@ -106,13 +102,13 @@ export default function TextBox() {
         style: styleSelected.style,
         premium: styleSelected.premium === "true"? true : false, 
         record: true,
-        userid: user.userid
+        userId: user.userId, 
       };
       console.log("=== customData", customData);
       
       setCallStatus("calling");
 
-      rtcApp.callServer(user.lvn || "", "phone", customData).then((nxmCall) => {
+      rtcApp.callServer("", "phone", customData).then((nxmCall) => {
         // console.log("Call Object ", nxmCall);
       }).catch(console.error);
       
@@ -132,13 +128,18 @@ export default function TextBox() {
     };
   };
 
+  // a maximum of 1500 characters (excluding SSML tags)
   const handleChangeText = (e) => {
-    var cleanText = e.target.value.replace(/[\t\n]/g, "");
-    var cleanTextExcSSML = cleanText.replace(/<[^>]*>/g, "");
-    // console.log(cleanTextExcSSML.length, cleanTextExcSSML);
-    // console.log(cleanText.length, cleanText);
-    if (cleanTextExcSSML.length > 1500) return;
-    setText(cleanText)
+    var _text = e.target.value.replace(/[\t]/g, " ");
+    // console.log(_text.length, _text);
+    var _textExcSSML = _text.replace(/<[^>]*>/g, "");
+    // console.log(_textExcSSML.length, _textExcSSML);
+    if (_textExcSSML.length > 1500 || _text.length < 1) {
+      setTextErr(true);
+    } else {
+      setTextErr(false);
+    }
+    setText(_text);
   }
 
   const handleChangeLanguage = (e) => {
@@ -166,18 +167,22 @@ export default function TextBox() {
     return browserLanguage || "en-US"; 
   }
 
+  /**
+   * including the SSML tags(except mark), newlines, and spaces,
+   * */ 
   const calEstCost = () => {
     if (!styleSelected || styleSelected.premium !== "true") {
       return setEstimatedCost(Number(0).toFixed(4));
     }
 
-    const cleanText = text.replace(/<mark.*?\/>/ig, "");
-    const characterCount = cleanText.length;
-    // console.log(cleanText.length, cleanText);
+    const _text = text.replace(/<mark.*?\/>/ig, "");
+    const characterCount = _text.length;
+    // console.log(_text.length, _text);
 
     const units = characterCount >= 100 
       ? Math.ceil(characterCount / 100) 
       : characterCount < 1 ? 0 : 1;
+
     const totalPrice = units * PRICE_PER_UNIT;
 
     setEstimatedCost(totalPrice.toFixed(4))
@@ -232,14 +237,14 @@ return (<>
       sx={{ pb:2, textAlign: "left" }}
     >
       <TextField
-        error={phone.length < 4? true : false}
+        error={phone.length < 4 || phone.length > 16}
         id="phone"
         label="Your Phone Number"
         value={phone}
         onChange={e => setPhone(e.target.value)}
       ></TextField>
       <TextField
-        error={text.length < 1 ? true : false }
+        error={textErr}
         id="text"
         label="TTS Message"
         multiline
@@ -247,10 +252,10 @@ return (<>
         value={text}
         onChange={handleChangeText}
         helperText={<>
-        {"* $0.0029 per 100 characters for Premium Voices"}
-        <Typography gutterBottom variant="caption" display="block" sx={{ width: "100%", textAlign: "right"}} spacing={0}>
-          {"Est. Cost: $" + estimatedCost + ""}
-        </Typography>
+          {"* $0.0029 per 100 characters for Premium Voices"}
+          <Typography gutterBottom variant="caption" display="block" color={"blue"} sx={{ width: "100%", textAlign: "right"}} spacing={0}>
+          {"(TTS) Est. Cost: $" + estimatedCost + ""}
+          </Typography>
         </>}
       ></TextField>
       <TextField
@@ -299,7 +304,7 @@ return (<>
         alignItems="stretch"
         spacing={0}
       >
-        <Button variant="contained" onClick={createCall} >
+        <Button variant="contained" onClick={createOutboundCall} >
           {"make a TTS call to your number"}
         </Button>
 

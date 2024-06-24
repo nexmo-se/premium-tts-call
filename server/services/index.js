@@ -1,39 +1,38 @@
 
-if (!process.env.APP_URL 
-  || !process.env.API_ACCOUNT_ID
-  || !process.env.API_ACCOUNT_SECRET
-  || !process.env.API_APPLICATION_ID
-  || !process.env.PRIVATE_KEY) {
+if (!process.env.VCR_INSTANCE_PUBLIC_URL 
+  || !process.env.VCR_API_ACCOUNT_ID
+  || !process.env.VCR_API_ACCOUNT_SECRET
+  || !process.env.VCR_API_APPLICATION_ID
+  || !process.env.VCR_PRIVATE_KEY) {
   console.log("Please check environment variables in .env");
   process.exit(0);
 }
 
-// const store = require("./StoreNeru"); // when running with neru
-// const nexmo = require("./NexmoNeru"); // when running with neru
-
-
-const store = new Map();
-const nexmo = require("./NexmoLocal");  // when running others
-
-
-const users = JSON.parse(process.env.APP_USERS || "{}");
-
+const { initAppUser } = require("./vonage/users");
+const { getTranscription } = require("./vonage/files");
 
 const start = async (app) => {
   try {
-    const arr = await nexmo.listUsers();
-    arr.forEach((i) => {
-      users[i.name] = {
-        id: i.id,
-        name: i.name
-      };
-    });
-    // console.log(JSON.stringify(users, null, 4));
+    /// /// /// 
+    await initAppUser("Alice");
 
-    const PORT = process.env.NERU_APP_PORT || 3000;
+    /// /// /// only for when deployed to VCR
+    if (process.env.VCR_INSTANCE_SERVICE_NAME) {
+      const { vcr, Voice } = require("@vonage/vcr-sdk");
+      try {
+        const session = vcr.getGlobalSession();
+        const voice = new Voice(session);
+        const listener = await voice.onCall("webhooks/answer");
+        console.log('[onCall]', listener);
+      } catch (error) {
+        console.log(error.message);
+      } 
+    }
+
+    /// /// /// 
+    const PORT = process.env.VCR_PORT || 3000;
     app.listen(PORT, () => {
       console.log("APP listening on port", PORT);
-      // console.log(process.env.PRIVATE_KEY);
     });
     
   } catch (error) {
@@ -42,11 +41,10 @@ const start = async (app) => {
   }
 };
 
-
 const onTranscriptAvailable = async (url) => {
   const transcript = [];
   try {
-    const lines = await nexmo.getTranscription(url);
+    const lines = await getTranscription(url);
     if (lines) {
       lines.forEach(line => {
         for (const [key, value] of Object.entries(line)) {
@@ -60,12 +58,7 @@ const onTranscriptAvailable = async (url) => {
   return transcript;
 };
 
-
 module.exports = {
-  store,
-  nexmo,
-  users,
   start,
-  onTranscriptAvailable
+  onTranscriptAvailable,
 };
-

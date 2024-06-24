@@ -5,8 +5,7 @@ import { UserContext } from "./context/UserContext";
 import { useQuery } from "./hooks/useQuery";
 import { Home } from "./pages/home/index.js";
 
-const APP_URL = process.env.REACT_APP_URL || "";
-const APP_URL_USERS = `${APP_URL}/api/users`;
+const APP_API_URL_USERS = `${process.env.REACT_APP_URL || ""}/api/users`;
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -25,21 +24,18 @@ export default function App() {
 
   useEffect(() => {
     const vidsUser = parseVidsJwt();
-    if (vidsUser) {
-      if (!vidsUser.userid) vidsUser.userid = Date.now();
-      setUser({ ...vidsUser });
-    }
+    setUser({ ...vidsUser, userId: vidsUser.userid ||  Date.now() });
   }, []);
 
   useEffect(() => {
     if (user && !user.jwt) {
-      fetch(`${APP_URL_USERS}/${user.userid}`, {
+      fetch(`${APP_API_URL_USERS}/${user.userId}`, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }
-      }).then((res) => res.json()).then(({ jwt, lvn }) => {
-        setUser({ ...user, jwt, lvn });
+      }).then((res) => res.json()).then(({ jwt }) => {
+        setUser({ ...user, jwt });
       })
       .catch(console.error);
     } else if (user) {

@@ -1,5 +1,5 @@
 
-const APP_URL = process.env.APP_URL;
+const APP_PUBLIC_URL = process.env.VCR_INSTANCE_PUBLIC_URL;
 
 const buildNcco = function(payload) {
   var ncco = [{
@@ -12,7 +12,7 @@ const buildNcco = function(payload) {
   if (payload.record) {
     var _ncco = {
       action: "record",
-      eventUrl: [ `${APP_URL}/webhooks/event`],
+      eventUrl: [ `${APP_PUBLIC_URL}/webhooks/event`],
       format: "wav",
       beepStart: true
     };

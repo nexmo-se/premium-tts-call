@@ -1,14 +1,11 @@
-const path = require("path");
-require("dotenv").config({
-  path: path.join(process.cwd(), `.env.${process.env.NODE_ENV}`)
-});
+require("dotenv").config();
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const createHttpError = require("http-errors");
 
-const services = require("./services/index");
+const {onTranscriptAvailable, start} = require("./services/index");
 const apiRouter = require("./routes/api");
 const webhooksRouter = require("./routes/webhooks");
 
@@ -25,12 +22,12 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static("build"));
 
 app.on("vapi-recording-available", async (e) => {
   try {
-    const { userid }  = e;
-    app.emit(`inform-client-${userid}`, {
+    const { userId }  = e;
+    app.emit(`inform-client-${userId}`, {
       ...e, 
       type: "recording",
       transcript: null,
@@ -44,10 +41,10 @@ app.on("vapi-recording-available", async (e) => {
 
 app.on("vapi-transcription-available", async (e) => {
   try {
-    const arr = await services.onTranscriptAvailable(e.transcription_url);
+    const arr = await onTranscriptAvailable(e.transcription_url);
     if (arr.length) {
-      const { userid }  = e;
-      app.emit(`inform-client-${userid}`, {
+      const { userId }  = e;
+      app.emit(`inform-client-${userId}`, {
         ...e, 
         type: "transcription",
         transcript: arr,
@@ -67,8 +64,8 @@ app.get("/_/metrics", async (req, res) => {
   return res.sendStatus(200);
 });
 
-app.use("/api/", apiRouter(services));
-app.use("/webhooks/", webhooksRouter(services));
+app.use("/api/", apiRouter);
+app.use("/webhooks/", webhooksRouter);
 
 app.use(function(req, res, next) {
   console.log("are you lost?", req.originalUrl);
@@ -82,6 +79,6 @@ app.use(function (err, req, res, next) {
   return res.status(code).json({ error: { detail, code } });
 });
 
-services.start(app);
+process.on("uncaughtException", console.error);
 
-// #
+start(app);

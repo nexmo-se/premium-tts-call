@@ -2,24 +2,25 @@
   "name": "premium-tts-server",
   "version": "1.0.3",
   "description": "",
-  "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "NODE_ENV=development nodemon index.js",
-    "debug": "NODE_ENV=production nodemon index.js",
-    "prod": "NODE_ENV=production node index.js"
+    "deploy:vcr": "cd ../frontend && npm run build && cp -r ../frontend/build ../server/ && cd ./server && vcr deploy",
+    "start": "node index.js",
+    "debug": "nodemon index.js",
+    "prod": "node index.js"
   },
   "dependencies": {
-    "@vonage/server-sdk": "^2.12.0-beta.3",
+    "@vonage/users": "^1.6.0",
+    "@vonage/vcr-sdk": "^1.3.0",
+    "@vonage/voice": "^1.12.1",
     "axios": "^1.6.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "elint": "^2.0.1",
     "express": "^4.18.2",
     "http-errors": "^2.0.0",
-    "morgan": "^1.10.0",
-    "neru-alpha": "^5.0.1",
-    "path": "^0.12.7"
+    "morgan": "^1.10.0"
   },
   "author": "yinping.ge@vonage.com",
   "license": "ISC",

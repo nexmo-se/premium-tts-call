@@ -4,9 +4,8 @@ import { Stack, Box } from "@mui/material";
 import { UserContext } from "../context/UserContext";
 import EventsTable from "./EventsTable.js";
 
-const APP_URL = process.env.REACT_APP_URL || "";
-const APP_URL_REALTIME = `${APP_URL}/api/realtime`;
-const APP_UR_RECORDINGS = `${APP_URL}/api/recordings`;
+const APP_API_URL_REALTIME = `${process.env.REACT_APP_URL || ""}/api/realtime`;
+const APP_API_URL_RECORDINGS = `${process.env.REACT_APP_URL || ""}/api/recordings`;
 
 export default function EventsBox() {
   const { user } = useContext(UserContext);
@@ -56,17 +55,19 @@ export default function EventsBox() {
   };
 
   useEffect(() => {
-    if (user && user.userid && realtime.current === null) {
+    if (user && user.userId && realtime.current === null) {
       try {
-        realtime.current = new EventSource(`${APP_URL_REALTIME}/${user.userid}`);
+        realtime.current = new EventSource(`${APP_API_URL_REALTIME}/${user.userId}`);
   
         realtime.current.onmessage = ({ data }) =>  {
           updateEvents(data);
         };
   
         realtime.current.onerror = (event) => {
+          console.log('onerror', event);
           realtime.current.close();
         };
+
       } catch (error) {
         console.log(error.message);
         realtime.current = false;
@@ -109,7 +110,7 @@ export default function EventsBox() {
             //{ id: 'recording_uuid', label: 'Recording UUID', minWidth: 100 },
             { id: "file_uuid", label: "Recording", minWidth: 100, 
               format: (value) => <audio controls key={"audio-" + value} >
-                <source src={`${APP_UR_RECORDINGS}/${value}`} type="audio/wav"></source>
+                <source src={`${APP_API_URL_RECORDINGS}/${value}`} type="audio/wav"></source>
               </audio>
             },
             { id: "transcript", label: "Transcript", minWidth: 100},

@@ -1,123 +1,108 @@
 
-const express = require("express");
 const { buildNcco } = require("../lib/utils");
+const { generateJwt } = require("../services/vonage/auth");
+const { createOutboundCall } = require("../services/vonage/voice");
+const { getFile } = require("../services/vonage/files");
+const { store } = require("../services/vonage/store");
+const express = require("express");
 const router = express.Router();
 
-const APP_URL = process.env.APP_URL || "";
+const APP_PUBLIC_URL = process.env.VCR_INSTANCE_PUBLIC_URL;
+const VONAGE_NUMBER = process.env.VONAGE_NUMBER;
 
-const Router = (services) => {
-  const { nexmo, users, store } = services;
+router.post("/create-outbound-call", async (req, res, next) => {
+  try {
+    const payload = req.body;
+    const ncco = buildNcco(payload);
 
-  router.post("/create-call", async (req, res, next) => {
-    try {
-      const payload = req.body;
-      const ncco = buildNcco(payload);
-      const param = {
-        from: { type: "phone", number: payload.from},
-        to: [{ type: "phone", number: payload.to}],
-        ncco: ncco,
-        event_url: [`${APP_URL}/webhooks/event`]
-      };
+    const data = await createOutboundCall({
+      from: { type: "phone", number: VONAGE_NUMBER},
+      to: [{ type: "phone", number: payload.to}],
+      ncco,
+      event_url: [`${APP_PUBLIC_URL}/webhooks/event`],
+    });
 
-      const data = await nexmo.createCall(param);
+    if (data && data.conversationUUID && payload.userId) {
+      await store.set(data.conversationUUID, payload.userId);
 
-      if (data && data.conversation_uuid && payload.userid) {
-        await store.set(data.conversation_uuid, payload.userid);
-
-        req.app.emit(`inform-client-${payload.userid}`, {
-          type: "answer", 
-          ncco: ncco, 
-          conversation_uuid: data.conversation_uuid
-        });
-      }
-
-      return res.json(data);
-    } catch (e) {
-      console.log(e.message);
-      next(e);
-    }
-  });
-
-  router.get("/realtime/:userid", async (req, res, next) => {
-    try {
-      const { userid } = req.params;
-      if (!userid) throw new Error("empaty params userid");
-
-      res.writeHead(200, {
-        "Connection": "keep-alive",
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
+      req.app.emit(`inform-client-${payload.userId}`, {
+        type: "answer", 
+        ncco, 
+        conversation_uuid: data.conversationUUID
       });
-
-      res.write("retry: 3000\n\n");
-
-      req.app.on(`inform-client-${userid}`, (d) => {
-        res.write(`data: ${JSON.stringify(d)}\n\n`);
-      });
-
-      setInterval(() => {
-        res.write("event: ping\n\n");
-      }, 3000);
-      
-    } catch (e) {
-      console.log(e.message);
-      next(e);
     }
-  });
 
-  router.get("/recordings/:fileId", async (req, res, next) => {
-    try {
-      const { fileId } = req.params;
-      if (!fileId) throw new Error("empaty params fileId");
+    return res.json(data);
+  } catch (e) {
+    console.log(e.message);
+    next(e);
+  }
+});
 
-      const data = await nexmo.getFile(fileId);
+router.get("/realtime/:userId", async (req, res, next) => {
+  try {
+    
+    const { userId } = req.params;
+    if (!userId) throw new Error("empaty params userId");
 
-      res.setHeader("Content-Type", "application/octet-stream");
-      res.write(data);
-      res.end();
-      
-    } catch (e) {
-      console.log(e.message);
-      next(e);
-    }
-  });
+    res.writeHead(200, {
+      "Connection": "keep-alive",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+    });
 
-  /**
-   * generate a jwt token for username
-  */
-  router.get("/users/:username", async (req, res, next) => {
-    try {
-      var { username } = req.params;
-      if (!username) throw new Error("empaty params username");
+    res.write("retry: 3000\n\n");
 
-      // if (!users[username]) throw new Error("username not found");
-      username = process.env.APP_USER || "Alice"; // Alice or Bob
+    req.app.on(`inform-client-${userId}`, (d) => {
+      res.write(`data: ${JSON.stringify(d)}\n\n`);
+    });
 
-      const jwt = await nexmo.generateJwtAcl(username);
-      if (!jwt) throw new Error("failed to generate an JWT token");
+    setInterval(() => {
+      res.write("event: ping\n\n");
+    }, 3000);
+    
+  } catch (e) {
+    console.log(e.message);
+    next(e);
+  }
+});
 
-      return res.json({ 
-        username, 
-        jwt, 
-        lvn: process.env.APP_VONAGE_NUMBER || ""
-      });
+router.get("/recordings/:fileId", async (req, res, next) => {
+  try {
+    const { fileId } = req.params;
+    if (!fileId) throw new Error("empaty params fileId");
 
-    } catch (e) {
-      console.log(`[${req.originalUrl}]`, e.message);
-      next(e);
-    }
-  });
+    const data = await getFile(fileId);
 
-  router.get("/users", async (req, res, next) => {
-    try {
-      return res.json(Object.values(users));
-    } catch (e) {
-      console.log(`[${req.originalUrl}]`, e.message);
-      next(e);
-    }
-  });
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.write(data);
+    res.end();
+    
+  } catch (e) {
+    console.log(e.message);
+    next(e);
+  }
+});
 
-  return router;
-};
+/**
+ * generate a jwt token for username
+*/
+router.get("/users/:username", async (req, res, next) => {
+  try {
+    var { username } = req.params;
+    if (!username) throw new Error("empaty params username");
 
-module.exports = Router;
+    // this is just for testing
+    username = "Alice"; 
+
+    const jwt = await generateJwt(username, true);
+    if (!jwt) throw new Error("failed to generate an JWT token");
+
+    return res.json({ jwt });
+  } catch (e) {
+    console.log(`[${req.originalUrl}]`, e.message);
+    next(e);
+  }
+});
+
+module.exports = router;

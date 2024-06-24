@@ -6,12 +6,9 @@ instance:
     region: aws.use1
     application-id: {{your-application-id}}
     environment:
-        - name: APP_VONAGE_NUMBER
+        - name: VONAGE_NUMBER
           value: "44700000000"
-        - name: APP_VONAGE_REGION
-          value: "us"
-    secrets:
-    capabilities:
+    capabilities: ["voice"]
     entrypoint:
         - npm
         - run
