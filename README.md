@@ -5,9 +5,7 @@ Makes TTS calls with Voice API and Client SDK for testing the Premium Voices.
 ## Prerequisites
 1. a Vonage Account
 2. a Vonage Application
-    - set ANSWER URL: POST {{your_server_url}}/api/webhooks/answer 
-    - set EVENT URL: POST {{your_server_url}}/api/webhooks/event 
-3. a Vonage number linked to the Vonage Application
+3. a Vonage number linked to the Vonage Application for making calls to phone numbers
 
 ## Installation
 1. Go to `./frontend` and `./server`, copy `env.sample` to `.env` and add your settings
